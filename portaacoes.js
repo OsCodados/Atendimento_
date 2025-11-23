@@ -1,95 +1,172 @@
-var lista1 = document.getElementById("lista1");
-var lista = document.getElementById("lista");
-var li0 = document.getElementById('senhacaixa1');
-var numale = (Math.random() * 50000) + 1000;
-document.getElementById("re").addEventListener('click', (event) =>{
-const op = Math.random();
-var op1 = Math.floor(op * 8000);
-document.getElementById("senharand").textContent = op1;
-const senpeg = document.createElement('li');
-const textli = document.createTextNode(op1);
-senpeg.appendChild(textli);
-lista.appendChild(senpeg);  
-if(lista.childElementCount > 3){
-    stop();
-} 
+// fila-atendimento versão lenta, aleatória, com limite visível de espera e limpeza do PRONTO
 
+var filaEspera = document.getElementById("lista");   // fila visível (máx 4)
+var filaBuffer = [];                                 // senhas extras ficam guardadas aqui
+var caixa1 = document.getElementById("lista1");
+var caixa2 = document.getElementById("caixa2");
+var recebidos = document.getElementById("recebimentos");
 
-function senhacaixa(){
-return new Promise(resolve => {
-        setTimeout(function(){
-            colocarsenha(); 
-            resolve();
-            setTimeout(function(){pronto()}, numale2);
-        }, 6000);
-    });
+let caixa1Ocupado = false;
+let caixa2Ocupado = false;
+
+// tempo mínimo que a senha deve ficar na fila de espera (em ms)
+const TEMPO_MIN_ESPERA = 2000;
+
+document.getElementById("re").addEventListener('click', () => {
+
+    const senha = Math.floor(Math.random() * 8000);
+    document.getElementById("senharand").textContent = senha;
+
+    adicionarFilaEspera(senha);
+    processarFila(); // dispara o processamento, mas respeitando o tempo mínimo
+});
+
+// ---- Adicionar senha com limite visual de 4 ----
+function adicionarFilaEspera(senha) {
+
+    if (filaEspera.childElementCount < 4) {
+        const li = document.createElement("li");
+        li.textContent = senha;
+        li.dataset.entrada = Date.now(); // marca horário de chegada na fila
+        filaEspera.appendChild(li);
+    } else {
+        // excedente vai para o buffer
+        filaBuffer.push(senha);
+    }
 }
-function removerdafila(){
-    setTimeout(function(){apagar()}, numale);
-    setTimeout(function(){avaliar()}, numale + 4000);
-    lista.removeChild(lista.children[0]);
-}
-senhacaixa().then(removerdafila);
 
-var numale1 = Math.floor(Math.random() * 60000);
-var numale2 = numale + numale1;
-
-//onde os números aleatórios são colocados
-var receber = document.getElementById("recebimentos");
-function pronto(){ //problema de puxar os elementos do 'senharand', deve só puxar os elementos da lista1 e caixa2
-const senpeg1 = document.createElement('li');
-const espera = document.createTextNode(op1);
-senpeg1.appendChild(espera);
-receber.appendChild(senpeg1);
-receber.style="font-size:70px";
-receber.style="border-bottom:3px";
+// ---- Mostrar próxima senha do buffer quando abrir espaço ----
+function atualizarFilaVisual() {
+    while (filaEspera.childElementCount < 4 && filaBuffer.length > 0) {
+        const senha = filaBuffer.shift();
+        const li = document.createElement("li");
+        li.textContent = senha;
+        li.dataset.entrada = Date.now(); // também marca horário ao entrar na fila visual
+        filaEspera.appendChild(li);
+    }
 }
-    function avaliar(){
+
+// ---- Processar fila tentando mandar para caixas ----
+function processarFila() {
+
+    if (filaEspera.childElementCount === 0) return;
+
+    const primeiro = filaEspera.firstElementChild;
+
+    // garante que temos o horário de entrada
+    if (!primeiro.dataset.entrada) {
+        primeiro.dataset.entrada = Date.now();
+    }
+
+    const tempoEspera = Date.now() - Number(primeiro.dataset.entrada);
+
+    // se ainda não esperou o tempo mínimo, agenda nova tentativa
+    if (tempoEspera < TEMPO_MIN_ESPERA) {
+        setTimeout(processarFila, TEMPO_MIN_ESPERA - tempoEspera);
+        return;
+    }
+
+    const senha = primeiro.textContent;
+
+    if (!caixa1Ocupado) {
+        moverParaCaixa(senha, 1);
+        filaEspera.removeChild(filaEspera.firstElementChild);
+        atualizarFilaVisual();
+        return;
+    }
+
+    if (!caixa2Ocupado) {
+        moverParaCaixa(senha, 2);
+        filaEspera.removeChild(filaEspera.firstElementChild);
+        atualizarFilaVisual();
+        return;
+    }
+
+    // ambos ocupados → continua na fila de espera
+}
+
+// tempo aleatório entre 2 e 7 segundos
+function tempoAleatorio() {
+    return Math.floor(Math.random() * 5000) + 2000;
+}
+
+// ---- Enviar senha ao caixa ----
+function moverParaCaixa(senha, caixa) {
+
+    const li = document.createElement("li");
+    li.textContent = senha;
+
+    if (caixa === 1) {
+        caixa1.appendChild(li);
+        caixa1Ocupado = true;
+
+        setTimeout(() => finalizarAtendimento(senha, 1), tempoAleatorio());
+    } else {
+        caixa2.appendChild(li);
+        caixa2Ocupado = true;
+
+        setTimeout(() => finalizarAtendimento(senha, 2), tempoAleatorio());
+    }
+}
+
+// ---- Finalizar atendimento, mandar para pronto e avaliação ----
+function finalizarAtendimento(senha, caixa) {
+
+    if (caixa === 1) {
+        caixa1.innerHTML = "";
+        caixa1Ocupado = false;
+    } else {
+        caixa2.innerHTML = "";
+        caixa2Ocupado = false;
+    }
+
+    // adiciona ao pronto
+    const li = document.createElement("li");
+    li.textContent = senha;
+    li.style.fontSize = "70px";
+    recebidos.appendChild(li);
+
+    // remove do pronto após tempo aleatório
+    setTimeout(() => {
+        if (li.parentNode) li.remove();
+    }, tempoAleatorio() + 2000);
+
+    // avaliação
+    setTimeout(() => avaliar(senha), 1000);
+
+    // tenta processar mais senhas
+    setTimeout(processarFila, 300);
+}
+
+// ---- Avaliação ----
+function avaliar(senha) {
     var imgsrc = document.getElementById('grade');
     var emojis_grade = Math.floor(Math.random() * 3);
-    if(emojis_grade == 0){
-    var dislike = 'imgs/naogostou.png';
-    imgsrc.setAttribute('src', dislike);
-    imgsrc.style.width="40px";
-    var mensagem = "Usuario: " + op1;    
-    document.getElementById("nota_p").textContent = mensagem;
-    var nao = 0;
-    nao += 1;
-    document.getElementById("downvote").textContent = nao;
-    } else if(emojis_grade == 1){
-    var normal = 'imgs/maisoumenos.png';
-    imgsrc.setAttribute('src', normal);
-    imgsrc.style.width="40px";
-    var mensagem1 = "Usuario: " + op1;    
-    document.getElementById("nota_p").textContent = mensagem1;
-    var ok = 0;
-    ok += 1;
-    document.getElementById("neutro").innerHTML = ok;
-    } else if(emojis_grade == 2){
-    var like = '/imgs/gostou.png';
-    imgsrc.setAttribute('src', like);
-    imgsrc.style.width="40px";
-     var mensagem2 = "Usuario: " + op1;    
-    document.getElementById('nota_p').textContent = mensagem2;
-    var sim = 0;
-    sim += 1;
-    document.getElementById("upvote").innerHTML = sim;
-    }
-    setTimeout(function(){
-        document.getElementById("nota_p").textContent = "";
-        imgsrc.setAttribute('src', '');
-    },2000);
-}
-function colocarsenha(){
-    var p7 = lista.firstElementChild.textContent;
-    li0.textContent = p7;
-}
-})
+    document.getElementById("nota_p").textContent = "Usuario: " + senha;
 
-function stop(){
-    document.getElementById("re").disabled = true;
+    if (emojis_grade == 0) {
+        imgsrc.src = "imgs/naogostou.png";
+        document.getElementById("downvote").textContent =
+            Number(document.getElementById("downvote").textContent) + 1;
+    }
+    else if (emojis_grade == 1) {
+        imgsrc.src = "imgs/maisoumenos.png";
+        document.getElementById("neutro").textContent =
+            Number(document.getElementById("neutro").textContent) + 1;
+    }
+    else {
+        imgsrc.src = "imgs/gostou.png";
+        document.getElementById("upvote").textContent =
+            Number(document.getElementById("upvote").textContent) + 1;
+    }
+
+    imgsrc.style.width = "50px";
+    imgsrc.style.display = "block";
+    document.getElementById("nota_p").style.display = "block";
+
+    setTimeout(() => {
+        imgsrc.style.display = "none";
+        document.getElementById("nota_p").style.display = "none";
+    }, 2000);
 }
-                function apagar(){
-                let voltaraonormal = "------";
-                li0.textContent = voltaraonormal;}
 
