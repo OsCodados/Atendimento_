@@ -87,7 +87,7 @@ function processarFila() {
 
 // tempo aleatório entre 2 e 7 segundos
 function tempoAleatorio() {
-    return Math.floor(Math.random() * 5000) + 2000;
+    return Math.floor(Math.random() * 10000) + 2000;
 }
 
 // ---- Enviar senha ao caixa ----

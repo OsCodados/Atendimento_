@@ -16,7 +16,7 @@
     align-items: center;
     border-radius: 8px;
     width: 420px;
-    height: 255px;
+    height: 220px;
     border-color: black 3px solid;
     background: radial-gradient(1200px 400px at -10% -10%, #15213a52 0%, rgba(17, 24, 39, 0.342) 40%), 
                   radial-gradient(800px 300px at 120% -10%, rgba(191, 194, 201, 0.25) 0%, rgba(17, 24, 39, 0.274) 45%),
@@ -142,7 +142,7 @@ button:hover { filter: brightness(1.05); transform: translateY(-1px); }
 .Conteudo{
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap:4px;
+    gap:28px;
     border-color: black 3px solid;
 }
 #senhaconseg{
