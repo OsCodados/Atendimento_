@@ -142,7 +142,6 @@ function finalizarAtendimento(senha, caixa) {
 function avaliar(senha) {
     var imgsrc = document.getElementById('grade');
     var emojis_grade = Math.floor(Math.random() * 3);
-    let Arraynotas = [];
     document.getElementById("nota_p").textContent = "Usuario: " + senha;
     var notamais = "imgs/naogostou.png";
     var notaneutra = "imgs/maisoumenos.png";
