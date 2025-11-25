@@ -142,24 +142,30 @@ function finalizarAtendimento(senha, caixa) {
 function avaliar(senha) {
     var imgsrc = document.getElementById('grade');
     var emojis_grade = Math.floor(Math.random() * 3);
+    let Arraynotas = [];
     document.getElementById("nota_p").textContent = "Usuario: " + senha;
-
+    var notamais = "imgs/naogostou.png";
+    var notaneutra = "imgs/maisoumenos.png";
+    var notamenos = "imgs/gostou.png";
     if (emojis_grade == 0) {
         imgsrc.src = "imgs/naogostou.png";
         document.getElementById("downvote").textContent =
             Number(document.getElementById("downvote").textContent) + 1;
+            Arraynotas.push(notamenos);
     }
     else if (emojis_grade == 1) {
         imgsrc.src = "imgs/maisoumenos.png";
         document.getElementById("neutro").textContent =
             Number(document.getElementById("neutro").textContent) + 1;
+            Arraynotas.push(notaneutra);
     }
     else {
         imgsrc.src = "imgs/gostou.png";
         document.getElementById("upvote").textContent =
             Number(document.getElementById("upvote").textContent) + 1;
+            Arraynotas.push(notamais);
     }
-
+    console.log(Arraynotas);
     imgsrc.style.width = "50px";
     imgsrc.style.display = "block";
     document.getElementById("nota_p").style.display = "block";
@@ -167,6 +173,6 @@ function avaliar(senha) {
     setTimeout(() => {
         imgsrc.style.display = "none";
         document.getElementById("nota_p").style.display = "none";
-    }, 2000);
+    }, 4000);
 }
 
