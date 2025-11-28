@@ -15,7 +15,7 @@
 #caixinha{
     align-items: center;
     border-radius: 8px;
-    width: 420px;
+    width: 409px;
     height: 220px;
     border-color: black 3px solid;
     background: radial-gradient(1200px 400px at -10% -10%, #15213a52 0%, rgba(17, 24, 39, 0.342) 40%), 
@@ -76,18 +76,9 @@ button:hover { filter: brightness(1.05); transform: translateY(-1px); }
 #senharand{
     font-size:35px;
 }
-#caixinha0{
-    background-color:rgba(162, 96, 46, 0);
-    align-items: center;
-    border-radius: 8px black;
-    border-color: black 3px solid;
-    padding: 3px; 
-    width: 410px;
-    align-content:center;
-}
 #caixinha1{
-    width: 500px;
-    height: 310px;
+    width: 480px;
+    height: 330px;
     display:grid;
     grid-template-columns: 1fr 1fr;
     border: 1px solid var(--border);
@@ -107,7 +98,7 @@ button:hover { filter: brightness(1.05); transform: translateY(-1px); }
                   linear-gradient(180deg, #0b122049, #1118274d 40%);
     align-items: center;
     padding: 9px; 
-    width:400px;
+    width:415px;
     height: 200px;
       border-radius: 16px;
       padding: 30px;
@@ -142,7 +133,7 @@ button:hover { filter: brightness(1.05); transform: translateY(-1px); }
 .Conteudo{
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap:28px;
+    gap:26px;
     border-color: black 3px solid;
 }
 #senhaconseg{
@@ -186,4 +177,11 @@ button:hover { filter: brightness(1.05); transform: translateY(-1px); }
 
 #senhacaixa1{
     font-size: 40px;
+}
+
+#caixinha-clima{
+    border: 3px solid black;
+    border-radius: 16px;
+    width: 470px;
+    background: rgba(102, 0, 255, 0.797);
 }

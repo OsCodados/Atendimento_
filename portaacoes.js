@@ -95,7 +95,7 @@ function moverParaCaixa(senha, caixa) {
 
     const li = document.createElement("li");
     li.textContent = senha;
-
+    li.style.fontSize = "50px";
     if (caixa === 1) {
         caixa1.appendChild(li);
         caixa1Ocupado = true;
@@ -175,3 +175,4 @@ function avaliar(senha) {
     }, 4000);
 }
 
+console.log("Fila de atendimento carregada.");
